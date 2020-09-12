@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS `tags` (
+    id INT PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    
+);
+
+CREATE TABLE IF NOT EXISTS `items` (
+    id INT PRIMARY KEY NOT NULL,
+);
