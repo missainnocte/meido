@@ -2,25 +2,14 @@ package main
 
 import (
 	"fmt"
-	"log"
-
-	"github.com/kardianos/service"
+	"github.com/ivanh/meido/server"
+	log "github.com/sirupsen/logrus"
+	"os"
 )
 
-var logger service.Logger
-
-type program struct{}
-
-func (p *program) Start(s service.Service) error {
-	// Start should not block. Do the actual work async.
-	go p.run()
-	return nil
-}
-
-func (p *program) run() {
+func run() {
 	// Do work here
 	fmt.Print(`
-
 ███╗░░░███╗███████╗██╗██████╗░░█████╗░
 ████╗░████║██╔════╝██║██╔══██╗██╔══██╗
 ██╔████╔██║█████╗░░██║██║░░██║██║░░██║
@@ -30,30 +19,26 @@ func (p *program) run() {
 `)
 }
 
-func (p *program) Stop(s service.Service) error {
-	// Stop should not block. Return with a few seconds.
-	fmt.Println("meido system ending...")
-	return nil
+type StdFormatter struct{}
+
+func (f StdFormatter) Format(entry *log.Entry) ([]byte, error) {
+	return []byte(fmt.Sprintf("%v[%v] %v\n", entry.Time.Local(), entry.Level, entry.Message)), nil
+}
+
+func initLogger() {
+	log.SetLevel(log.DebugLevel)
+	log.SetOutput(os.Stdout)
+	log.SetFormatter(new(StdFormatter))
+}
+
+func initServer(err chan error) {
+	server.Init(err)
 }
 
 func main() {
-	svcConfig := &service.Config{
-		Name:        "MeidoSystem",
-		DisplayName: "MeidoServiceSystem",
-		Description: "A system prepare to serve you as a meido!",
-	}
-
-	prg := &program{}
-	s, err := service.New(prg, svcConfig)
-	if err != nil {
-		log.Fatal(err)
-	}
-	logger, err = s.Logger(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = s.Run()
-	if err != nil {
-		logger.Error(err)
-	}
+	err := make(chan error)
+	initLogger()
+	run()
+	initServer(err)
+	log.Error(<-err)
 }
