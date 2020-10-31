@@ -14,16 +14,17 @@ type StaticPath struct {
 	prefix string
 }
 
-func GetStaticHandle(paths []StaticPath) []Route {
-	routes := make([]Route, len(paths))
-	for index, path := range paths {
-		log.Debug(path)
-		route := Route{
-			path.prefix, getStaticHandler(path),
-		}
-		routes[index] = route
+func GetStaticHandle(path StaticPath) Route {
+	//routes := make([]Route, len(paths))
+	//for index, path := range paths {
+	log.Debug(path)
+	route := Route{
+		path.prefix, getStaticHandler(path),
 	}
-	return routes
+	return route
+	//routes[index] = route
+	//}
+	//return routes
 }
 
 func getStaticHandler(sp StaticPath) http.HandlerFunc {

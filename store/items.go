@@ -1,4 +1,4 @@
-package dao
+package store
 
 import (
 	"database/sql"
@@ -10,9 +10,18 @@ type Item struct {
 	Path       string `json:"path"`
 	Alias      string `json:"alias"`
 	Type       int64  `json:"type"`
-	UpdateDate int64  `json:"update_date"`
-	CreateDate int64  `json:"create_date"`
+	UpdateDate string `json:"update_date"`
+	CreateDate string `json:"create_date"`
 	Tags       []Tag  `json:"tags"`
+}
+
+func createItemTable(db *sql.DB) error {
+	query := buildCreateItemTableSQL()
+	_, err := db.Exec(query)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 /**
@@ -30,8 +39,7 @@ func CreateItem(tx *sql.DB, item Item) error {
 /**
 获取item列表
 */
-func GetItems(db *sql.DB) ([]Item, error) {
-	//list := []Item{}
+func getItems(db *sql.DB) ([]Item, error) {
 	query := buildGetItemSQL()
 	rows, err := db.Query(query)
 	if err != nil {
@@ -53,7 +61,7 @@ func GetItems(db *sql.DB) ([]Item, error) {
 		}
 		item.Tags = tags
 	}
-	return []Item{}, nil
+	return ret, nil
 }
 
 /**
@@ -82,4 +90,16 @@ VALUES
 
 func buildGetItemSQL() string {
 	return `SELECT items.* FROM items`
+}
+
+func buildCreateItemTableSQL() string {
+	return `
+CREATE TABLE IF NOT EXISTS "items" (
+  "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  "path" TEXT,
+  "alias" TEXT,
+  "type" integer DEFAULT 0,
+  "create_date" integer,
+  "update_date" integer
+);`
 }

@@ -6,35 +6,39 @@ import (
 	"strings"
 )
 
-func routes() []Route {
-	return []Route{
-		{
-			"/",
-			func(res http.ResponseWriter, req *http.Request) {
-				log.Info(log.Fields{
-					"remote_addr": req.RemoteAddr,
-					"url":         req.URL,
-				})
-				_, err := res.Write([]byte("hello world!"))
-				if err != nil {
-					log.Error(err)
-				}
-			},
-		},
-	}
-}
+//func routes() []Route {
+//	return []Route{
+//		{
+//			"/",
+//			func(res http.ResponseWriter, req *http.Request) {
+//				log.Info(log.Fields{
+//					"remote_addr": req.RemoteAddr,
+//					"url":         req.URL,
+//				})
+//				_, err := res.Write([]byte("hello world!"))
+//				if err != nil {
+//					log.Error(err)
+//				}
+//			},
+//		},
+//	}
+//}
 
 func Init(err chan error) {
 	mux := http.NewServeMux()
-	static := []StaticPath{
-		{"D:/", "/d"},
+	for _, rt := range routes {
+		log.Info(log.Fields{
+			"action": "mount route on server",
+			"path":   rt.path,
+		})
 	}
 	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		for _, rt := range GetStaticHandle(static) {
+		for _, rt := range routes {
 			if strings.HasPrefix(request.URL.Path, rt.path) {
 				log.Info(log.Fields{
-					"action": "mount route on server",
-					"path":   rt.path,
+					"Url":        request.URL,
+					"Method":     request.Method,
+					"RemoteAddr": request.RemoteAddr,
 				})
 				rt.handlerFunc(writer, request)
 			}

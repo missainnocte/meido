@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/ivanh/meido/persistence"
 	"github.com/ivanh/meido/server"
 	log "github.com/sirupsen/logrus"
 	"os"
@@ -36,6 +37,9 @@ func initServer(err chan error) {
 }
 
 func main() {
+	persistence.Init()
+	defer persistence.Close()
+	//log.Info(SQL_DRIVER)
 	err := make(chan error)
 	initLogger()
 	run()
