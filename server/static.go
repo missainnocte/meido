@@ -36,16 +36,19 @@ func getStaticHandler(sp StaticPath) http.HandlerFunc {
 			log.Error(err)
 			res.WriteHeader(http.StatusNotFound)
 			_, err = res.Write([]byte(err.Error()))
+			return
 		}
 		if !fileInfo.IsDir() {
 			file, err := ioutil.ReadFile(target)
 			if err != nil {
 				log.Error(err)
 				res.WriteHeader(http.StatusForbidden)
+				return
 			}
 			_, err = res.Write(file)
 			if err != nil {
 				log.Error(err)
+				return
 			}
 		} else {
 			infos, err := ioutil.ReadDir(target)
@@ -53,16 +56,19 @@ func getStaticHandler(sp StaticPath) http.HandlerFunc {
 				log.Error(err)
 				res.WriteHeader(http.StatusInternalServerError)
 				_, err = res.Write([]byte(err.Error()))
+				return
 			}
 			dirInfo := getDirInfoList(infos)
 			jsonInfo, err := json.Marshal(dirInfo)
 			log.Debug(string(jsonInfo))
 			if err != nil {
 				log.Error(err)
+				return
 			}
 			_, err = res.Write(jsonInfo)
 			if err != nil {
 				log.Error(err)
+				return
 			}
 		}
 	}
